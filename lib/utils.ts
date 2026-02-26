@@ -23,8 +23,8 @@ export function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: nu
   const R = 6371
   const dLat = ((lat2 - lat1) * Math.PI) / 180
   const dLon = ((lon2 - lon1) * Math.PI) / 180
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
 export function calculateSpoilageRisk(humidity: number, tempC: number, daysInStorage: number, hasRefrigeration: boolean): 'Low' | 'Medium' | 'High' {
@@ -42,10 +42,13 @@ export function calculateSpoilageRisk(humidity: number, tempC: number, daysInSto
 }
 
 export function predictPrice(historicalPrices: number[], daysAhead: number) {
-  if (historicalPrices.length < 3) return historicalPrices[historicalPrices.length - 1]
+  if (historicalPrices.length < 3) {
+    const defaultPrice = historicalPrices.length > 0 ? historicalPrices[historicalPrices.length - 1] : 0
+    return { price: defaultPrice, confidence: 0.5, trend: 'stable' }
+  }
   const recent = historicalPrices.slice(-7)
-  const slope = (recent[recent.length-1] - recent[0]) / recent.length
-  const lastPrice = recent[recent.length-1]
+  const slope = (recent[recent.length - 1] - recent[0]) / recent.length
+  const lastPrice = recent[recent.length - 1]
   const predicted = lastPrice + slope * daysAhead
   const confidence = Math.max(0.5, 0.95 - Math.abs(slope) * 0.05)
   return { price: Math.round(predicted * 100) / 100, confidence, trend: slope > 0.5 ? 'rising' : slope < -0.5 ? 'falling' : 'stable' }

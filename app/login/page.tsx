@@ -1,18 +1,11 @@
-"use client";
+import { login } from './actions'
 
-import { useState } from "react";
-
-export default function LoginPage() {
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage(
-      "Demo login only. Once Supabase keys are set, this will sign you into your KhetiWala account."
-    );
-  }
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message: string }>
+}) {
+  const { message } = await searchParams
 
   return (
     <div className="min-h-screen bg-transparent px-4 py-10 font-sans text-zinc-900 dark:text-zinc-50 sm:px-8 lg:px-20">
@@ -29,52 +22,51 @@ export default function LoginPage() {
             farmer.
           </h1>
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Use the same mobile number you registered with. For the demo this
-            form does not talk to a real backend yet.
+            Sign in to your account.
           </p>
         </header>
 
         <form
-          onSubmit={handleSubmit}
           className="space-y-4 rounded-2xl border border-zinc-100 bg-white/80 p-5 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950/70"
         >
           <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
-              Mobile number
+            <label htmlFor="email" className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
+              Email address
             </label>
             <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+91 98xxxxxx"
+              id="email"
+              name="email"
+              type="email"
+              placeholder="farmer@example.com"
               className="h-10 w-full rounded-full border border-zinc-300 bg-white px-3 text-sm outline-none focus:border-emerald-600 dark:border-zinc-700 dark:bg-zinc-900"
               required
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
-              PIN / Password
+            <label htmlFor="password" className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
+              Password
             </label>
             <input
+              id="password"
+              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="4–6 digit PIN"
+              placeholder="••••••••"
               className="h-10 w-full rounded-full border border-zinc-300 bg-white px-3 text-sm outline-none focus:border-emerald-600 dark:border-zinc-700 dark:bg-zinc-900"
               required
             />
           </div>
 
           <button
+            formAction={login}
             type="submit"
             className="mt-2 inline-flex h-10 w-full items-center justify-center rounded-full bg-emerald-700 px-5 text-sm font-medium text-white shadow-sm hover:bg-emerald-800"
           >
-            Login (demo)
+            Login
           </button>
 
           {message && (
-            <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-xs text-red-500 whitespace-pre-wrap">
               {message}
             </p>
           )}
@@ -83,4 +75,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
