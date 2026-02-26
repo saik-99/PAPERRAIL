@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+:root {
+  --green-primary: #007B41;
+  --green-light: #4CAF50;
+  --amber: #FFC107;
+  --danger: #DC3545;
+  --blue-info: #0056B3;
+  --text-dark: #212529;
+  --bg-white: #FFFFFF;
+  --bg-subtle: #F8FBF9;
+  --border: #E2E8F0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-noto), var(--font-devanagari), system-ui, sans-serif;
+  color: var(--text-dark);
+  background: var(--bg-subtle);
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Mobile-first card styles */
+.card {
+  background: var(--bg-white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+
+.card-elevated {
+  background: var(--bg-white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+/* Status badges */
+.badge-low { background: #E8F5E9; color: #2E7D32; }
+.badge-medium { background: #FFF8E1; color: #F57F17; }
+.badge-high { background: #FFEBEE; color: #C62828; }
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: white;
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Voice pulse animation */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,123,65,0.4); }
+  70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(0,123,65,0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,123,65,0); }
+}
+
+.voice-pulse { animation: pulse-ring 1.5s ease-in-out infinite; }
+
+/* Smooth transitions */
+.transition-all { transition: all 0.2s ease; }
+
+/* Risk meter */
+.risk-meter {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* Expandable section */
+.expandable { overflow: hidden; transition: max-height 0.3s ease; }
+
+/* Scrollbar hide */
+::-webkit-scrollbar { display: none; }
+* { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Loading shimmer */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
