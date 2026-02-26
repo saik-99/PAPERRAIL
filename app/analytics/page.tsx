@@ -92,8 +92,9 @@ export default function AnalyticsPage() {
             </div>
           )}
 
-          <div className="mt-8 text-center border-t border-[#1a2d1a] pt-4">
-            <p className="text-[10px] text-zinc-600">{t.source}</p>
+          <div className="mt-8 text-center border-t border-[#1a2d1a] pt-4 flex flex-col items-center gap-1">
+            <p className="text-xs text-zinc-500 font-medium">{t.sourceAgmarknet}</p>
+            <p className="text-[10px] text-zinc-600">Data provided by agmarknet.gov.in</p>
           </div>
         </div>
       </main>

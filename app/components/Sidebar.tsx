@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 import {
     LayoutDashboard, Sprout, TrendingUp, MapPin, PackageOpen,
-    Landmark, Mic, AlertTriangle, Leaf
+    Landmark, Mic, AlertTriangle, Leaf, Newspaper
 } from 'lucide-react';
 
 const NAV = [
@@ -26,7 +26,7 @@ const NAV = [
         items: [
             { href: '/pm-schemes', label: 'Gov Schemes', icon: Landmark },
             { href: '/voice-ai', label: 'Voice AI', icon: Mic },
-            { href: '/risk-alerts', label: 'Risk Alerts', icon: AlertTriangle },
+            { href: '/news', label: 'Agri News', icon: Newspaper },
         ],
     },
 ];
@@ -72,7 +72,7 @@ export function Sidebar() {
                         </p>
                         {group.items.map((item) => {
                             const active = pathname === item.href;
-                            const isAlert = item.href === '/risk-alerts';
+                            const isNews = item.href === '/news';
                             return (
                                 <Link
                                     key={item.href}
@@ -82,11 +82,11 @@ export function Sidebar() {
                                         : 'text-zinc-400 hover:bg-[#0d1a0d] hover:text-emerald-300'
                                         }`}
                                 >
-                                    <item.icon className={`h-4 w-4 shrink-0 ${isAlert ? 'text-amber-400' : ''}`} />
-                                    <span className={`flex-1 ${isAlert ? 'text-amber-400' : ''}`}>{item.label}</span>
-                                    {isAlert && (
-                                        <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-bold text-white">
-                                            {riskCount}
+                                    <item.icon className="h-4 w-4 shrink-0" />
+                                    <span className="flex-1">{item.label}</span>
+                                    {isNews && (
+                                        <span className="flex h-4 min-w-[24px] items-center justify-center rounded-full bg-emerald-800 px-1 text-[9px] font-bold text-white">
+                                            Live
                                         </span>
                                     )}
                                 </Link>

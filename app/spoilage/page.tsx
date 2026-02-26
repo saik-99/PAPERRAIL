@@ -127,6 +127,18 @@ function ActionCard({ action, rank }: { action: PreservationAction; rank: number
             <p className="text-[10px] text-zinc-600 mb-0.5">🔬 Why it works:</p>
             <p className="text-xs text-zinc-400 leading-relaxed">{action.whyItWorks}</p>
           </div>
+
+          {/* Recommended Products Link */}
+          <div className="pt-2">
+            <a
+              href={`https://www.amazon.in/s?k=${encodeURIComponent(action.action + " agriculture farming")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5 text-[11px] font-semibold text-amber-400 hover:bg-amber-500/20 transition-colors border border-amber-900/30 w-full justify-center sm:w-auto"
+            >
+              🛒 Find Equipment on Amazon
+            </a>
+          </div>
         </div>
       )}
     </div>
@@ -211,272 +223,286 @@ export default function SpoilagePage() {
   const offset = c - (riskScore / 100) * c;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#050e05]">
-      <TopBar meta={{ greeting: '', title: 'Spoilage & Storage Risk' }} />
+    <div className="flex flex-col min-h-screen relative bg-[#050a05]">
+      {/* Background Image with Dark Overlay */}
+      <div
+        className="fixed inset-0 z-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2689&auto=format&fit=crop")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#050a05]/80 via-[#050a05]/95 to-[#050a05] pointer-events-none" />
 
-      <main className="flex-1 p-4 md:p-6">
-        <div className="mx-auto max-w-5xl space-y-5">
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <TopBar meta={{ greeting: '', title: 'Spoilage & Storage Risk' }} />
 
-          {/* ── Controls Row ─────────────────────────────────────────────────── */}
-          <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="text-xl">🍅</span>
-              <div>
-                <h2 className="font-bold text-white text-base">Post-Harvest Risk Analyzer</h2>
-                <p className="text-xs text-zinc-500">AI assesses spoilage risk and ranks preservation actions by cost</p>
-              </div>
-            </div>
+        <main className="flex-1 p-4 md:p-6">
+          <div className="mx-auto max-w-5xl space-y-5">
 
-            <div className="grid gap-3 sm:grid-cols-2 mb-4">
-              <div>
-                <p className="mb-1.5 text-[10px] uppercase tracking-widest text-zinc-500">Crop</p>
-                <select
-                  value={crop}
-                  onChange={e => setCrop(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                >
-                  {COMMON_CROPS.map(c => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-              <div>
-                <p className="mb-1.5 text-[10px] uppercase tracking-widest text-zinc-500">State / Region</p>
-                <select
-                  value={state}
-                  onChange={e => setState(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                >
-                  {INDIAN_STATES.map(s => <option key={s}>{s}</option>)}
-                </select>
-              </div>
-              <div>
-                <p className="mb-1.5 text-[10px] uppercase tracking-widest text-zinc-500">Storage Type</p>
-                <select
-                  value={storageType}
-                  onChange={e => setStorageType(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                >
-                  {STORAGE_TYPES.map(s => <option key={s}>{s}</option>)}
-                </select>
-              </div>
-              <div className="flex items-end">
-                <button
-                  onClick={analyze}
-                  disabled={loading}
-                  className="h-10 w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-700 text-sm font-bold text-white hover:bg-emerald-600 disabled:opacity-60 transition-colors"
-                >
-                  {loading
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing...</>
-                    : <><Shield className="h-4 w-4" /> AI Risk Assessment</>}
-                </button>
-              </div>
-            </div>
-
-            {/* Sliders */}
-            <div className="space-y-3">
-              {[
-                { label: 'Humidity', value: humidity, setter: setHumidity, min: 20, max: 100, unit: '%', emoji: '💧' },
-                { label: 'Temperature', value: temp, setter: setTemp, min: 10, max: 45, unit: '°C', emoji: '🌡️' },
-                { label: 'Transit Days', value: transitDays, setter: setTransitDays, min: 1, max: 14, unit: ' days', emoji: '🚚' },
-              ].map(s => (
-                <div key={s.label}>
-                  <div className="mb-1 flex justify-between text-xs text-zinc-400">
-                    <span>{s.emoji} {s.label}</span>
-                    <span className="font-semibold text-white">{s.value}{s.unit}</span>
-                  </div>
-                  <input
-                    type="range" min={s.min} max={s.max} value={s.value}
-                    onChange={e => s.setter(Number(e.target.value))}
-                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#1a2d1a] accent-emerald-500"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {error && (
-            <div className="rounded-xl border border-red-900/50 bg-red-950/20 p-4 text-sm text-red-300">
-              ⚠️ {error}
-            </div>
-          )}
-
-          {/* ── Risk Meter + Immediate Actions Row ──────────────────────────── */}
-          <div className="grid gap-5 md:grid-cols-2">
-
-            {/* Risk Meter */}
+            {/* ── Controls Row ─────────────────────────────────────────────────── */}
             <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
               <div className="mb-4 flex items-center gap-2">
-                <span className="text-lg">⚠️</span>
-                <h2 className="font-bold text-white text-sm">Spoilage Risk Meter</h2>
-              </div>
-
-              <div className="flex gap-5 items-center mb-5">
-                {/* Donut */}
-                <div className="relative shrink-0">
-                  <svg width="100" height="100" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r={r} fill="none" stroke="#1a2d1a" strokeWidth="12" />
-                    <circle
-                      cx="50" cy="50" r={r} fill="none"
-                      stroke={riskColor} strokeWidth="12"
-                      strokeDasharray={c} strokeDashoffset={offset}
-                      strokeLinecap="round" transform="rotate(-90 50 50)"
-                      style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xl font-bold text-white">{riskScore}%</span>
-                    <span className="text-[9px] text-zinc-500 uppercase">Risk</span>
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="flex-1 space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">💧 Humidity</span>
-                    <span className="text-white font-medium">{humidity}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">🌡️ Temperature</span>
-                    <span className="text-white font-medium">{temp}°C</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">🚚 Transit</span>
-                    <span className="text-white font-medium">{transitDays} days</span>
-                  </div>
-                  <div className="flex justify-between pt-1 border-t border-[#1a2d1a]">
-                    <span className="text-zinc-500">⚠️ Risk Level</span>
-                    <span className="font-bold" style={{ color: riskColor }}>{riskLabel}</span>
-                  </div>
+                <span className="text-xl">🍅</span>
+                <div>
+                  <h2 className="font-bold text-white text-base">Post-Harvest Risk Analyzer</h2>
+                  <p className="text-xs text-zinc-500">AI assesses spoilage risk and ranks preservation actions by cost</p>
                 </div>
               </div>
 
-              {/* Plain language risk */}
-              {assessment && (
-                <div className="rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] p-3">
-                  <p className="text-xs text-zinc-300 leading-relaxed">{assessment.plainRisk}</p>
-                  {assessment.estimatedLossPercent > 0 && (
-                    <p className="mt-1 text-xs text-red-400 font-semibold">
-                      📉 Estimated crop loss without action: ~{assessment.estimatedLossPercent}%
-                    </p>
-                  )}
+              <div className="grid gap-3 sm:grid-cols-2 mb-4">
+                <div>
+                  <p className="mb-1.5 text-[10px] uppercase tracking-widest text-zinc-500">Crop</p>
+                  <select
+                    value={crop}
+                    onChange={e => setCrop(e.target.value)}
+                    className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  >
+                    {COMMON_CROPS.map(c => <option key={c}>{c}</option>)}
+                  </select>
                 </div>
-              )}
+                <div>
+                  <p className="mb-1.5 text-[10px] uppercase tracking-widest text-zinc-500">State / Region</p>
+                  <select
+                    value={state}
+                    onChange={e => setState(e.target.value)}
+                    className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  >
+                    {INDIAN_STATES.map(s => <option key={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <p className="mb-1.5 text-[10px] uppercase tracking-widest text-zinc-500">Storage Type</p>
+                  <select
+                    value={storageType}
+                    onChange={e => setStorageType(e.target.value)}
+                    className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  >
+                    {STORAGE_TYPES.map(s => <option key={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button
+                    onClick={analyze}
+                    disabled={loading}
+                    className="h-10 w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-700 text-sm font-bold text-white hover:bg-emerald-600 disabled:opacity-60 transition-colors"
+                  >
+                    {loading
+                      ? <><Loader2 className="h-4 w-4 animate-spin" /> Analyzing...</>
+                      : <><Shield className="h-4 w-4" /> AI Risk Assessment</>}
+                  </button>
+                </div>
+              </div>
 
-              {/* Key risk factors */}
-              {assessment?.keyRiskFactors && (
-                <div className="mt-3 space-y-1.5">
-                  {assessment.keyRiskFactors.map((f, i) => (
-                    <div key={i} className="flex items-start gap-2 text-xs text-zinc-400">
-                      <span className="mt-0.5 h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: riskColor }} />
-                      {f}
+              {/* Sliders */}
+              <div className="space-y-3">
+                {[
+                  { label: 'Humidity', value: humidity, setter: setHumidity, min: 20, max: 100, unit: '%', emoji: '💧' },
+                  { label: 'Temperature', value: temp, setter: setTemp, min: 10, max: 45, unit: '°C', emoji: '🌡️' },
+                  { label: 'Transit Days', value: transitDays, setter: setTransitDays, min: 1, max: 14, unit: ' days', emoji: '🚚' },
+                ].map(s => (
+                  <div key={s.label}>
+                    <div className="mb-1 flex justify-between text-xs text-zinc-400">
+                      <span>{s.emoji} {s.label}</span>
+                      <span className="font-semibold text-white">{s.value}{s.unit}</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <input
+                      type="range" min={s.min} max={s.max} value={s.value}
+                      onChange={e => s.setter(Number(e.target.value))}
+                      className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#1a2d1a] accent-emerald-500"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Immediate Actions + Weather Warning */}
-            <div className="space-y-4">
-              {/* Immediate actions */}
+            {error && (
+              <div className="rounded-xl border border-red-900/50 bg-red-950/20 p-4 text-sm text-red-300">
+                ⚠️ {error}
+              </div>
+            )}
+
+            {/* ── Risk Meter + Immediate Actions Row ──────────────────────────── */}
+            <div className="grid gap-5 md:grid-cols-2">
+
+              {/* Risk Meter */}
               <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
-                <div className="mb-3 flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-amber-400" />
-                  <h3 className="font-bold text-white text-sm">Immediate Actions</h3>
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="text-lg">⚠️</span>
+                  <h2 className="font-bold text-white text-sm">Spoilage Risk Meter</h2>
                 </div>
-                {assessment?.immediateActions ? (
-                  <ul className="space-y-2">
-                    {assessment.immediateActions.map((a, i) => (
-                      <li key={i} className={`rounded-lg p-3 text-xs leading-relaxed ${i === 0 ? 'border border-red-900/50 bg-red-950/20 text-red-200' : 'border border-amber-900/30 bg-amber-950/10 text-amber-200'}`}>
-                        {a}
-                      </li>
+
+                <div className="flex gap-5 items-center mb-5">
+                  {/* Donut */}
+                  <div className="relative shrink-0">
+                    <svg width="100" height="100" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r={r} fill="none" stroke="#1a2d1a" strokeWidth="12" />
+                      <circle
+                        cx="50" cy="50" r={r} fill="none"
+                        stroke={riskColor} strokeWidth="12"
+                        strokeDasharray={c} strokeDashoffset={offset}
+                        strokeLinecap="round" transform="rotate(-90 50 50)"
+                        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-xl font-bold text-white">{riskScore}%</span>
+                      <span className="text-[9px] text-zinc-500 uppercase">Risk</span>
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex-1 space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">💧 Humidity</span>
+                      <span className="text-white font-medium">{humidity}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">🌡️ Temperature</span>
+                      <span className="text-white font-medium">{temp}°C</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500">🚚 Transit</span>
+                      <span className="text-white font-medium">{transitDays} days</span>
+                    </div>
+                    <div className="flex justify-between pt-1 border-t border-[#1a2d1a]">
+                      <span className="text-zinc-500">⚠️ Risk Level</span>
+                      <span className="font-bold" style={{ color: riskColor }}>{riskLabel}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Plain language risk */}
+                {assessment && (
+                  <div className="rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] p-3">
+                    <p className="text-xs text-zinc-300 leading-relaxed">{assessment.plainRisk}</p>
+                    {assessment.estimatedLossPercent > 0 && (
+                      <p className="mt-1 text-xs text-red-400 font-semibold">
+                        📉 Estimated crop loss without action: ~{assessment.estimatedLossPercent}%
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Key risk factors */}
+                {assessment?.keyRiskFactors && (
+                  <div className="mt-3 space-y-1.5">
+                    {assessment.keyRiskFactors.map((f, i) => (
+                      <div key={i} className="flex items-start gap-2 text-xs text-zinc-400">
+                        <span className="mt-0.5 h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: riskColor }} />
+                        {f}
+                      </div>
                     ))}
-                  </ul>
-                ) : (
-                  <p className="text-xs text-zinc-500">Run AI assessment to get immediate action guidance for your crop.</p>
+                  </div>
                 )}
               </div>
 
-              {/* Weather warning */}
-              {assessment?.weatherWarning && (
-                <div className="rounded-2xl border border-amber-900/40 bg-amber-950/10 p-4">
-                  <p className="text-xs font-semibold text-amber-300 mb-1">🌦️ Weather Storage Warning</p>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{assessment.weatherWarning}</p>
+              {/* Immediate Actions + Weather Warning */}
+              <div className="space-y-4">
+                {/* Immediate actions */}
+                <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-amber-400" />
+                    <h3 className="font-bold text-white text-sm">Immediate Actions</h3>
+                  </div>
+                  {assessment?.immediateActions ? (
+                    <ul className="space-y-2">
+                      {assessment.immediateActions.map((a, i) => (
+                        <li key={i} className={`rounded-lg p-3 text-xs leading-relaxed ${i === 0 ? 'border border-red-900/50 bg-red-950/20 text-red-200' : 'border border-amber-900/30 bg-amber-950/10 text-amber-200'}`}>
+                          {a}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-zinc-500">Run AI assessment to get immediate action guidance for your crop.</p>
+                  )}
                 </div>
-              )}
 
-              {/* Crop specific tips */}
-              {assessment?.cropSpecificTips && assessment.cropSpecificTips.length > 0 && (
-                <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">💡 Tips for {crop}</p>
-                  <ul className="space-y-1.5">
-                    {assessment.cropSpecificTips.map((tip, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-zinc-400">
-                        <span className="text-amber-400 shrink-0 mt-0.5">→</span>
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
+                {/* Weather warning */}
+                {assessment?.weatherWarning && (
+                  <div className="rounded-2xl border border-amber-900/40 bg-amber-950/10 p-4">
+                    <p className="text-xs font-semibold text-amber-300 mb-1">🌦️ Weather Storage Warning</p>
+                    <p className="text-xs text-zinc-400 leading-relaxed">{assessment.weatherWarning}</p>
+                  </div>
+                )}
 
-          {/* ── Quality Timeline ─────────────────────────────────────────────── */}
-          {assessment?.qualityImpactTimeline && (
-            <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
-              <div className="mb-4 flex items-center gap-2">
-                <span>📉</span>
-                <h3 className="font-bold text-white text-sm">Quality Over Time (Without Action)</h3>
+                {/* Crop specific tips */}
+                {assessment?.cropSpecificTips && assessment.cropSpecificTips.length > 0 && (
+                  <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-4">
+                    <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">💡 Tips for {crop}</p>
+                    <ul className="space-y-1.5">
+                      {assessment.cropSpecificTips.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-zinc-400">
+                          <span className="text-amber-400 shrink-0 mt-0.5">→</span>
+                          {tip}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-              <QualityTimeline
-                timeline={assessment.qualityImpactTimeline}
-                safeStorageDays={assessment.safeStorageDays}
-              />
-            </div>
-          )}
-
-          {/* ── Preservation Actions (AI-ranked) ─────────────────────────────── */}
-          <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
-            <div className="mb-4 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">📦</span>
-                <div>
-                  <h2 className="font-bold text-white text-sm">Preservation Actions</h2>
-                  <p className="text-xs text-zinc-500">Ranked by cost (cheapest first) · AI-powered</p>
-                </div>
-              </div>
-              {assessment && (
-                <button
-                  onClick={analyze}
-                  disabled={loading}
-                  className="flex items-center gap-1.5 rounded-lg border border-[#1a2d1a] bg-[#0d1a0d] px-3 py-1.5 text-xs text-zinc-400 hover:border-emerald-700 hover:text-emerald-400 transition-colors"
-                >
-                  <RefreshCw className="h-3 w-3" />
-                  Refresh
-                </button>
-              )}
             </div>
 
-            {assessment?.preservationActions && assessment.preservationActions.length > 0 ? (
-              <div className="space-y-2">
-                {assessment.preservationActions.map((action, i) => (
-                  <ActionCard key={i} action={action} rank={i} />
-                ))}
-              </div>
-            ) : !loading ? (
-              <div className="rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] p-8 text-center">
-                <p className="text-3xl mb-2">📦</p>
-                <p className="text-sm text-zinc-400">Set your storage conditions and click <strong className="text-zinc-200">AI Risk Assessment</strong> to get preservation actions ranked by cost.</p>
-              </div>
-            ) : (
-              <div className="rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] p-8 flex items-center justify-center gap-3">
-                <Loader2 className="h-5 w-5 animate-spin text-emerald-500" />
-                <p className="text-sm text-zinc-400">AI is analyzing your storage conditions...</p>
+            {/* ── Quality Timeline ─────────────────────────────────────────────── */}
+            {assessment?.qualityImpactTimeline && (
+              <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
+                <div className="mb-4 flex items-center gap-2">
+                  <span>📉</span>
+                  <h3 className="font-bold text-white text-sm">Quality Over Time (Without Action)</h3>
+                </div>
+                <QualityTimeline
+                  timeline={assessment.qualityImpactTimeline}
+                  safeStorageDays={assessment.safeStorageDays}
+                />
               </div>
             )}
-          </div>
 
-        </div>
-      </main>
+            {/* ── Preservation Actions (AI-ranked) ─────────────────────────────── */}
+            <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
+              <div className="mb-4 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">📦</span>
+                  <div>
+                    <h2 className="font-bold text-white text-sm">Preservation Actions</h2>
+                    <p className="text-xs text-zinc-500">Ranked by cost (cheapest first) · AI-powered</p>
+                  </div>
+                </div>
+                {assessment && (
+                  <button
+                    onClick={analyze}
+                    disabled={loading}
+                    className="flex items-center gap-1.5 rounded-lg border border-[#1a2d1a] bg-[#0d1a0d] px-3 py-1.5 text-xs text-zinc-400 hover:border-emerald-700 hover:text-emerald-400 transition-colors"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    Refresh
+                  </button>
+                )}
+              </div>
+
+              {assessment?.preservationActions && assessment.preservationActions.length > 0 ? (
+                <div className="space-y-2">
+                  {assessment.preservationActions.map((action, i) => (
+                    <ActionCard key={i} action={action} rank={i} />
+                  ))}
+                </div>
+              ) : !loading ? (
+                <div className="rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] p-8 text-center">
+                  <p className="text-3xl mb-2">📦</p>
+                  <p className="text-sm text-zinc-400">Set your storage conditions and click <strong className="text-zinc-200">AI Risk Assessment</strong> to get preservation actions ranked by cost.</p>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] p-8 flex items-center justify-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-emerald-500" />
+                  <p className="text-sm text-zinc-400">AI is analyzing your storage conditions...</p>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

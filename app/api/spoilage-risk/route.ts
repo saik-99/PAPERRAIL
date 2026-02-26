@@ -1,3 +1,4 @@
+export const dynamic = 'force-static';
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -209,3 +210,4 @@ Rules: at least 4 preservation actions ranked cheapest first. Use simple Hindi/E
         return NextResponse.json({ success: true, assessment });
     }
 }
+

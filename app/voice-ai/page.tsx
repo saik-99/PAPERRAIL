@@ -55,95 +55,109 @@ export default function VoiceAIPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen">
-            <TopBar meta={{ greeting: 'Good afternoon', title: 'Voice AI Assistant' }} />
-            <main className="flex-1 p-6">
-                <div className="mx-auto max-w-5xl grid gap-6 lg:grid-cols-2">
+        <div className="flex flex-col min-h-screen relative bg-[#050a05]">
+            {/* Background Image with Dark Overlay */}
+            <div
+                className="fixed inset-0 z-0 opacity-20 pointer-events-none"
+                style={{
+                    backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2689&auto=format&fit=crop")',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                }}
+            />
+            <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#050a05]/80 via-[#050a05]/95 to-[#050a05] pointer-events-none" />
 
-                    {/* Voice input panel */}
-                    <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-8 flex flex-col items-center justify-center text-center min-h-[360px]">
-                        <p className="text-sm font-semibold text-white mb-1">🎙️ Voice AI Assistant</p>
-                        <p className="text-xs text-zinc-500 mb-8">Ask in Hindi or English</p>
+            <div className="relative z-10 flex flex-col min-h-screen">
+                <TopBar meta={{ greeting: 'Good afternoon', title: 'Voice AI Assistant' }} />
+                <main className="flex-1 p-6">
+                    <div className="mx-auto max-w-5xl grid gap-6 lg:grid-cols-2">
 
-                        <button
-                            onClick={toggleListening}
-                            className={`relative flex h-20 w-20 items-center justify-center rounded-full transition-all duration-300 ${listening
-                                ? 'bg-emerald-700 shadow-[0_0_40px_10px_rgba(5,150,105,0.3)]'
-                                : 'bg-[#1a2d1a] hover:bg-[#1e3a1e]'
-                                }`}
-                        >
-                            {pulse && listening && (
-                                <span className="absolute inset-0 rounded-full animate-ping bg-emerald-600 opacity-30" />
-                            )}
-                            {listening
-                                ? <Mic className="h-8 w-8 text-white animate-pulse" />
-                                : <Mic className="h-8 w-8 text-emerald-500" />
-                            }
-                        </button>
+                        {/* Voice input panel */}
+                        <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-8 flex flex-col items-center justify-center text-center min-h-[360px]">
+                            <p className="text-sm font-semibold text-white mb-1">🎙️ Voice AI Assistant</p>
+                            <p className="text-xs text-zinc-500 mb-8">Ask in Hindi or English</p>
 
-                        <p className="mt-4 text-xs text-zinc-500">{listening ? 'Listening... Speak now' : 'Tap mic to speak'}</p>
-
-                        <div className="mt-6 flex flex-wrap justify-center gap-2">
-                            {QUICK_PROMPTS.map((p) => (
-                                <button
-                                    key={p}
-                                    onClick={() => sendQuery(p)}
-                                    className="rounded-full border border-[#2a3d2a] px-3 py-1.5 text-xs text-zinc-400 hover:border-emerald-600 hover:text-emerald-400 transition-colors"
-                                >
-                                    {p}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="mt-4 w-full flex gap-2">
-                            <input
-                                value={query}
-                                onChange={e => setQuery(e.target.value)}
-                                onKeyDown={e => { if (e.key === 'Enter') sendQuery(query); }}
-                                placeholder="Or type your question..."
-                                className="flex-1 rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                            />
                             <button
-                                onClick={() => sendQuery(query)}
-                                className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
-                            >Send</button>
-                        </div>
-                    </div>
+                                onClick={toggleListening}
+                                className={`relative flex h-20 w-20 items-center justify-center rounded-full transition-all duration-300 ${listening
+                                    ? 'bg-emerald-700 shadow-[0_0_40px_10px_rgba(5,150,105,0.3)]'
+                                    : 'bg-[#1a2d1a] hover:bg-[#1e3a1e]'
+                                    }`}
+                            >
+                                {pulse && listening && (
+                                    <span className="absolute inset-0 rounded-full animate-ping bg-emerald-600 opacity-30" />
+                                )}
+                                {listening
+                                    ? <Mic className="h-8 w-8 text-white animate-pulse" />
+                                    : <Mic className="h-8 w-8 text-emerald-500" />
+                                }
+                            </button>
 
-                    {/* Conversation History */}
-                    <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-6 min-h-[360px] flex flex-col">
-                        <p className="text-sm font-semibold text-white mb-4">💬 Conversation History</p>
-                        <div className="flex-1 overflow-y-auto space-y-3">
-                            {history.length === 0 && (
-                                <p className="text-xs text-zinc-600 text-center mt-8">Your conversation will appear here.</p>
-                            )}
-                            {history.map((msg, i) => (
-                                <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                                    <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${msg.role === 'ai'
-                                        ? 'bg-[#0d1a0d] text-zinc-300 rounded-tl-none'
-                                        : 'bg-emerald-800 text-white rounded-tr-none'
-                                        }`}>
-                                        <p>{msg.text}</p>
-                                        <p className="mt-1 text-[9px] opacity-50">{msg.time}</p>
-                                    </div>
-                                </div>
-                            ))}
-                            {loading && (
-                                <div className="flex gap-2">
-                                    <div className="rounded-2xl rounded-tl-none bg-[#0d1a0d] px-3 py-2">
-                                        <div className="flex gap-1">
-                                            {[0, 150, 300].map(d => (
-                                                <div key={d} style={{ animationDelay: `${d}ms` }}
-                                                    className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" />
-                                            ))}
+                            <p className="mt-4 text-xs text-zinc-500">{listening ? 'Listening... Speak now' : 'Tap mic to speak'}</p>
+
+                            <div className="mt-6 flex flex-wrap justify-center gap-2">
+                                {QUICK_PROMPTS.map((p) => (
+                                    <button
+                                        key={p}
+                                        onClick={() => sendQuery(p)}
+                                        className="rounded-full border border-[#2a3d2a] px-3 py-1.5 text-xs text-zinc-400 hover:border-emerald-600 hover:text-emerald-400 transition-colors"
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="mt-4 w-full flex gap-2">
+                                <input
+                                    value={query}
+                                    onChange={e => setQuery(e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Enter') sendQuery(query); }}
+                                    placeholder="Or type your question..."
+                                    className="flex-1 rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                                />
+                                <button
+                                    onClick={() => sendQuery(query)}
+                                    className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
+                                >Send</button>
+                            </div>
+                        </div>
+
+                        {/* Conversation History */}
+                        <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-6 min-h-[360px] flex flex-col">
+                            <p className="text-sm font-semibold text-white mb-4">💬 Conversation History</p>
+                            <div className="flex-1 overflow-y-auto space-y-3">
+                                {history.length === 0 && (
+                                    <p className="text-xs text-zinc-600 text-center mt-8">Your conversation will appear here.</p>
+                                )}
+                                {history.map((msg, i) => (
+                                    <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                                        <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-xs leading-relaxed ${msg.role === 'ai'
+                                            ? 'bg-[#0d1a0d] text-zinc-300 rounded-tl-none'
+                                            : 'bg-emerald-800 text-white rounded-tr-none'
+                                            }`}>
+                                            <p>{msg.text}</p>
+                                            <p className="mt-1 text-[9px] opacity-50">{msg.time}</p>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                ))}
+                                {loading && (
+                                    <div className="flex gap-2">
+                                        <div className="rounded-2xl rounded-tl-none bg-[#0d1a0d] px-3 py-2">
+                                            <div className="flex gap-1">
+                                                {[0, 150, 300].map(d => (
+                                                    <div key={d} style={{ animationDelay: `${d}ms` }}
+                                                        className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 }

@@ -1,3 +1,4 @@
+export const dynamic = 'force-static';
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -73,3 +74,4 @@ Give 3-4 sentence practical advice. Always end with one actionable tip starting 
         return NextResponse.json({ reply: getFallbackReply(message || '', context || {}) });
     }
 }
+

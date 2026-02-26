@@ -1,3 +1,4 @@
+export const dynamic = 'force-static';
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
@@ -50,3 +51,4 @@ Provide agricultural advice based on this context.`
     return NextResponse.json({ success: false, error: 'Failed to get advisory' }, { status: 500 })
   }
 }
+

@@ -1,3 +1,4 @@
+export const dynamic = 'force-static';
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchWeatherData, getMockWeatherSummary, getCoordinatesForCity } from '@/lib/weatherUtils';
 
@@ -70,3 +71,4 @@ export async function GET(req: NextRequest) {
     });
   }
 }
+

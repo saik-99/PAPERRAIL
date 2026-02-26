@@ -1,3 +1,4 @@
+export const dynamic = 'force-static';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -37,3 +38,4 @@ export async function GET(request: NextRequest) {
         })),
     });
 }
+

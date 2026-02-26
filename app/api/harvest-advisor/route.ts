@@ -1,3 +1,4 @@
+export const dynamic = 'force-static';
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getSoilProfile, getSoilHealthScore, getCropSuitability } from '@/lib/soilData';
@@ -214,3 +215,4 @@ Respond ONLY in strict JSON format (no markdown):
         return NextResponse.json({ error: 'Failed to generate harvest recommendation', details: String(error) }, { status: 500 });
     }
 }
+

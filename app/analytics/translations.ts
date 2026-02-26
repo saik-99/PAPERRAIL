@@ -5,7 +5,7 @@ export const translations = {
         searchPlaceholder: "Search commodity (e.g. ONION, WHEAT)...",
         searchButton: "Search",
         featured: ["WHEAT", "RICE", "MAIZE", "ARHAR", "GROUNDNUT", "ONION", "POTATO", "COTTON"],
-        featuredKeys: ["WHEAT", "RICE", "MAIZE", "ARHAR", "GROUNDNUT", "ONION", "POTATO", "COTTON"],
+        featuredKeys: ["wheat", "paddy", "maize", "arhar", "groundnut", "onion", "potato", "cotton"],
         duration7D: "7 Days",
         duration14D: "14 Days",
         duration1M: "1 Month",
@@ -17,8 +17,10 @@ export const translations = {
         loading: "Loading data...",
         noData: "No mapping available",
         price: "Price",
-        rising: "Rising",
-        falling: "Falling"
+        falling: "Falling",
+        aiPrediction: "AI Prediction",
+        aiJustification: "AI Insight",
+        sourceAgmarknet: "Source: Agmarknet & Machine Learning Model"
     },
     hi: {
         title: "बाजार के रुझान",
@@ -26,7 +28,7 @@ export const translations = {
         searchPlaceholder: "वस्तु खोजें (उदा. ONION, WHEAT)...",
         searchButton: "खोजें",
         featured: ["गेहूं", "चावल", "मक्का", "अरहर", "मूंगफली", "प्याज", "आलू", "कपास"],
-        featuredKeys: ["WHEAT", "RICE", "MAIZE", "ARHAR", "GROUNDNUT", "ONION", "POTATO", "COTTON"],
+        featuredKeys: ["wheat", "paddy", "maize", "arhar", "groundnut", "onion", "potato", "cotton"],
         duration7D: "7 दिन",
         duration14D: "14 दिन",
         duration1M: "1 महीना",
@@ -39,7 +41,10 @@ export const translations = {
         noData: "कोई डेटा उपलब्ध नहीं",
         price: "मूल्य",
         rising: "बढ़ रहा है",
-        falling: "गिर रहा है"
+        falling: "गिर रहा है",
+        aiPrediction: "AI भविष्यवाणी",
+        aiJustification: "AI इनसाइट",
+        sourceAgmarknet: "स्रोत: Agmarknet और मशीन लर्निंग मॉडल"
     }
 };
 

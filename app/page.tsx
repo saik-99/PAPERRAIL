@@ -62,156 +62,170 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <TopBar meta={{ greeting: '', title: 'Dashboard' }} />
+    <div className="flex flex-col min-h-screen relative bg-[#050a05]">
+      {/* Farm Background Image with Dark Overlay */}
+      <div
+        className="fixed inset-0 z-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2689&auto=format&fit=crop")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#050a05]/80 via-[#050a05]/95 to-[#050a05] pointer-events-none" />
 
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-5xl space-y-6">
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <TopBar meta={{ greeting: '', title: 'Dashboard' }} />
 
-          {/* Live clock + Season */}
-          <div className="rounded-xl border border-[#1a2d1a] bg-[#0a160a] px-4 py-3">
-            <LiveClock />
-          </div>
+        <main className="flex-1 p-6">
+          <div className="mx-auto max-w-5xl space-y-6">
 
-          {/* Farm Profile Form */}
-          <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <Leaf className="h-5 w-5 text-emerald-500" />
-              <h2 className="font-bold text-white">Your Farm Profile</h2>
-            </div>
-            <form onSubmit={handlePredict} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">State</label>
-                <select
-                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                  value={formData.state}
-                  onChange={e => setFormData(p => ({ ...p, state: e.target.value }))}
-                >
-                  <option value="">Select State</option>
-                  {STATES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">City / Village</label>
-                <input
-                  placeholder="e.g. Nagpur"
-                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                  value={formData.city}
-                  onChange={e => setFormData(p => ({ ...p, city: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">Land Size (acres)</label>
-                <input
-                  type="number" placeholder="e.g. 5"
-                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                  value={formData.landSize}
-                  onChange={e => setFormData(p => ({ ...p, landSize: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">Main Crop</label>
-                <select
-                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                  value={formData.crop}
-                  onChange={e => setFormData(p => ({ ...p, crop: e.target.value }))}
-                >
-                  <option value="">Select Crop</option>
-                  {CROPS.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
-                </select>
-              </div>
-              <button
-                type="submit"
-                className="sm:col-span-2 lg:col-span-4 h-10 rounded-xl bg-emerald-700 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors"
-              >
-                Analyze AI Insights →
-              </button>
-            </form>
-          </div>
-
-          {/* Price Chart + Market data */}
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* WPI Chart */}
-            <div className={`rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5 transition-all duration-500 ${!isPredicted ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
-              <div className="mb-4 flex items-start justify-between">
-                <div>
-                  <h2 className="flex items-center gap-2 text-sm font-bold text-white">
-                    <TrendingUp className="h-4 w-4 text-emerald-500" />
-                    {chartLabel}
-                  </h2>
-                  <p className="text-[11px] text-zinc-500 mt-0.5">WPI Price Index · India 2011–2017</p>
-                </div>
-                {sellSignal && (
-                  <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${sellSignal === 'BUY' ? 'bg-emerald-900/50 text-emerald-400' :
-                    sellSignal === 'SELL' ? 'bg-red-900/50 text-red-400' :
-                      'bg-amber-900/50 text-amber-400'
-                    }`}>
-                    {sellSignal === 'BUY' ? <TrendingUp className="h-3 w-3" /> : sellSignal === 'SELL' ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
-                    {sellSignal}
-                  </span>
-                )}
-              </div>
-              <div className="h-52 min-h-[200px]">
-                {isLoading ? (
-                  <div className="flex h-full items-center justify-center">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-                  </div>
-                ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#059669" stopOpacity={0.25} />
-                          <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1a2d1a" />
-                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#6b7280' }} dy={6} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#6b7280' }} />
-                      <Tooltip formatter={(v: number | undefined) => [v !== undefined ? `${v}` : '', 'WPI Index']}
-                        contentStyle={{ background: '#0d1a0d', border: '1px solid #1a2d1a', borderRadius: '8px', fontSize: '11px' }}
-                        labelStyle={{ color: '#a3a3a3' }}
-                      />
-                      <Area type="monotone" dataKey="index" stroke="#059669" strokeWidth={2} fillOpacity={1} fill="url(#emeraldGrad)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
+            {/* Live clock + Season */}
+            <div className="rounded-xl border border-[#1a2d1a] bg-[#0a160a] px-4 py-3">
+              <LiveClock />
             </div>
 
-            {/* Gov Scheme Quick Links */}
+            {/* Farm Profile Form */}
             <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
-              <div className="mb-4">
-                <h2 className="text-sm font-bold text-white">🏛️ Quick Links — Government Schemes</h2>
-                <p className="text-[11px] text-zinc-500 mt-0.5">Based on your land: {formData.landSize || '?'} acres · {formData.state || 'your state'}</p>
+              <div className="mb-4 flex items-center gap-2">
+                <Leaf className="h-5 w-5 text-emerald-500" />
+                <h2 className="font-bold text-white">Your Farm Profile</h2>
               </div>
-              <div className="space-y-2">
-                {[
-                  { title: 'PM-Kisan Samman Nidhi', desc: '₹6,000/year income support', link: 'https://pmkisan.gov.in/' },
-                  { title: 'PM Fasal Bima Yojana', desc: 'Crop insurance from 1.5%', link: 'https://pmfby.gov.in/' },
-                  { title: 'Kisan Credit Card', desc: 'Loan at 4% for farmers', link: 'https://www.nabard.org/' },
-                ].map(s => (
-                  <a key={s.title} href={s.link} target="_blank" rel="noreferrer"
-                    className="flex items-center justify-between rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-4 py-3 hover:border-emerald-700 transition-colors">
-                    <div>
-                      <p className="text-xs font-semibold text-white">{s.title}</p>
-                      <p className="text-[11px] text-zinc-500">{s.desc}</p>
+              <form onSubmit={handlePredict} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">State</label>
+                  <select
+                    className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    value={formData.state}
+                    onChange={e => setFormData(p => ({ ...p, state: e.target.value }))}
+                  >
+                    <option value="">Select State</option>
+                    {STATES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">City / Village</label>
+                  <input
+                    placeholder="e.g. Nagpur"
+                    className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    value={formData.city}
+                    onChange={e => setFormData(p => ({ ...p, city: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">Land Size (acres)</label>
+                  <input
+                    type="number" placeholder="e.g. 5"
+                    className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    value={formData.landSize}
+                    onChange={e => setFormData(p => ({ ...p, landSize: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">Main Crop</label>
+                  <select
+                    className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    value={formData.crop}
+                    onChange={e => setFormData(p => ({ ...p, crop: e.target.value }))}
+                  >
+                    <option value="">Select Crop</option>
+                    {CROPS.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  className="sm:col-span-2 lg:col-span-4 h-10 rounded-xl bg-emerald-700 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors"
+                >
+                  Analyze AI Insights →
+                </button>
+              </form>
+            </div>
+
+            {/* Price Chart + Market data */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* WPI Chart */}
+              <div className={`rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5 transition-all duration-500 ${!isPredicted ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
+                <div className="mb-4 flex items-start justify-between">
+                  <div>
+                    <h2 className="flex items-center gap-2 text-sm font-bold text-white">
+                      <TrendingUp className="h-4 w-4 text-emerald-500" />
+                      {chartLabel}
+                    </h2>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">WPI Price Index · India 2011–2017</p>
+                  </div>
+                  {sellSignal && (
+                    <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${sellSignal === 'BUY' ? 'bg-emerald-900/50 text-emerald-400' :
+                      sellSignal === 'SELL' ? 'bg-red-900/50 text-red-400' :
+                        'bg-amber-900/50 text-amber-400'
+                      }`}>
+                      {sellSignal === 'BUY' ? <TrendingUp className="h-3 w-3" /> : sellSignal === 'SELL' ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+                      {sellSignal}
+                    </span>
+                  )}
+                </div>
+                <div className="h-52 min-h-[200px]">
+                  {isLoading ? (
+                    <div className="flex h-full items-center justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
                     </div>
-                    <span className="text-xs text-emerald-400 font-medium">Apply →</span>
-                  </a>
-                ))}
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                      <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#059669" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1a2d1a" />
+                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#6b7280' }} dy={6} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#6b7280' }} />
+                        <Tooltip formatter={(v: number | undefined) => [v !== undefined ? `${v}` : '', 'WPI Index']}
+                          contentStyle={{ background: '#0d1a0d', border: '1px solid #1a2d1a', borderRadius: '8px', fontSize: '11px' }}
+                          labelStyle={{ color: '#a3a3a3' }}
+                        />
+                        <Area type="monotone" dataKey="index" stroke="#059669" strokeWidth={2} fillOpacity={1} fill="url(#emeraldGrad)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </div>
+
+              {/* Gov Scheme Quick Links */}
+              <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
+                <div className="mb-4">
+                  <h2 className="text-sm font-bold text-white">🏛️ Quick Links — Government Schemes</h2>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">Based on your land: {formData.landSize || '?'} acres · {formData.state || 'your state'}</p>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { title: 'PM-Kisan Samman Nidhi', desc: '₹6,000/year income support', link: 'https://pmkisan.gov.in/' },
+                    { title: 'PM Fasal Bima Yojana', desc: 'Crop insurance from 1.5%', link: 'https://pmfby.gov.in/' },
+                    { title: 'Kisan Credit Card', desc: 'Loan at 4% for farmers', link: 'https://www.nabard.org/' },
+                  ].map(s => (
+                    <a key={s.title} href={s.link} target="_blank" rel="noreferrer"
+                      className="flex items-center justify-between rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-4 py-3 hover:border-emerald-700 transition-colors">
+                      <div>
+                        <p className="text-xs font-semibold text-white">{s.title}</p>
+                        <p className="text-[11px] text-zinc-500">{s.desc}</p>
+                      </div>
+                      <span className="text-xs text-emerald-400 font-medium">Apply →</span>
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Gemini Advisor context */}
-          <GeminiAdvisor context={{
-            state: formData.state, city: formData.city,
-            landSize: formData.landSize, crop: formData.crop,
-            wpiIndex: chartData.length > 0 ? `${chartData[chartData.length - 1].index} (${chartLabel})` : 'not fetched',
-          }} />
-        </div>
-      </main>
+            {/* Gemini Advisor context */}
+            <GeminiAdvisor context={{
+              state: formData.state, city: formData.city,
+              landSize: formData.landSize, crop: formData.crop,
+              wpiIndex: chartData.length > 0 ? `${chartData[chartData.length - 1].index} (${chartLabel})` : 'not fetched',
+            }} />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
