@@ -2,98 +2,99 @@
 
 import { TopBar } from '../components/TopBar';
 import { useState, useEffect } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Search } from 'lucide-react';
-
-const FEATURED = ['WHEAT', 'RICE', 'MAIZE', 'ARHAR', 'GROUNDNUT', 'ONION', 'POTATO', 'COTTON'];
-
-interface Commodity { name: string; weight: number | null; series: { month: string; index: number }[]; }
+import { translations, Language } from './translations';
+import { LanguageToggle } from '../components/analytics/LanguageToggle';
+import { CropCard } from '../components/analytics/CropCard';
 
 export default function AnalyticsPage() {
-  const [query, setQuery] = useState('WHEAT');
-  const [input, setInput] = useState('WHEAT');
-  const [data, setData] = useState<Commodity | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [language, setLanguage] = useState<Language>('en');
+  const [query, setQuery] = useState('');
+  const [input, setInput] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`/api/crop-prices?q=${encodeURIComponent(query)}`)
-      .then(r => r.json())
-      .then(j => setData(j.commodities?.[0] ?? null))
-      .catch(() => { })
-      .finally(() => setLoading(false));
-  }, [query]);
+    setMounted(true);
+  }, []);
+
+  const t = translations[language];
+
+  // Map English keys to UI names based on current language
+  const allCrops = t.featuredKeys.map((key, index) => ({
+    key,
+    uiName: t.featured[index]
+  }));
+
+  const displayCrops = query
+    ? allCrops.filter(c => c.key.toLowerCase().includes(query.toLowerCase()) || c.uiName.toLowerCase().includes(query.toLowerCase()))
+    : allCrops;
+
+  if (!mounted) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#050a05]">
+        <TopBar meta={{ greeting: t.greeting, title: t.title }} />
+        <main className="flex-1 p-4 md:p-6 mb-20">
+          <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <TopBar meta={{ greeting: 'Good afternoon', title: 'Market Trends' }} />
-      <main className="flex-1 p-6">
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-5 flex flex-wrap gap-2">
-            {FEATURED.map(c => (
-              <button key={c} onClick={() => { setQuery(c); setInput(c); }}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${query === c ? 'bg-emerald-700 text-white' : 'border border-[#1a2d1a] bg-[#0a160a] text-zinc-400 hover:border-emerald-700 hover:text-emerald-400'}`}>
-                {c}
-              </button>
-            ))}
+    <div className="flex flex-col min-h-screen bg-[#050a05]">
+      <TopBar meta={{ greeting: t.greeting, title: t.title }} />
+      <main className="flex-1 p-4 md:p-6 mb-20">
+        <div className="mx-auto max-w-7xl">
+
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-white transition-colors">{t.title}</h1>
+              <p className="text-sm text-zinc-400 mt-1">{t.lastUpdated}: {new Date().toLocaleDateString(language === 'en' ? 'en-US' : 'en-IN')}</p>
+            </div>
+            <div className="flex items-center gap-4 self-end sm:self-auto">
+              <LanguageToggle language={language} onToggle={setLanguage} />
+            </div>
           </div>
 
-          <div className="mb-5 flex gap-2">
+          <div className="mb-6 flex flex-col sm:flex-row gap-2 max-w-md">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
               <input
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') setQuery(input); }}
-                placeholder="Search commodity (e.g. ONION, WHEAT)..."
-                className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0a160a] pl-9 pr-4 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                placeholder={t.searchPlaceholder}
+                className="h-12 w-full rounded-xl border border-[#1a2d1a] bg-[#0a160a] pl-10 pr-4 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600 transition-all shadow-inner"
               />
             </div>
             <button onClick={() => setQuery(input)}
-              className="h-10 rounded-xl bg-emerald-700 px-5 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors">
-              Search
+              className="h-12 rounded-xl bg-emerald-700 px-6 text-sm font-semibold text-white shadow-md hover:bg-emerald-600 transition-colors">
+              {t.searchButton}
             </button>
           </div>
 
-          {loading && (
-            <div className="flex h-64 items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+          {displayCrops.length === 0 ? (
+            <div className="text-center py-20 text-zinc-500">
+              {t.noData}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {displayCrops.map(crop => (
+                <CropCard
+                  key={crop.key}
+                  name={crop.key}
+                  uiName={crop.uiName}
+                  language={language}
+                />
+              ))}
             </div>
           )}
 
-          {!loading && data && (
-            <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-6">
-              <div className="mb-4 flex items-start justify-between">
-                <div>
-                  <h2 className="text-lg font-bold text-white">{data.name}</h2>
-                  <p className="text-xs text-zinc-500">WPI Weight: {data.weight ?? 'N/A'} · Last {data.series.length} months</p>
-                </div>
-                <span className="rounded-full border border-emerald-800 bg-emerald-900/20 px-3 py-1 text-xs font-semibold text-emerald-400">
-                  From WPI Dataset
-                </span>
-              </div>
-              <div className="h-64 min-h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data.series} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#059669" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1a2d1a" />
-                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#6b7280' }} dy={6} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#6b7280' }} />
-                    <Tooltip formatter={(v: number | undefined) => [v !== undefined ? `${v}` : '', 'WPI Index']}
-                      contentStyle={{ background: '#0d1a0d', border: '1px solid #1a2d1a', borderRadius: '8px', fontSize: '11px' }}
-                    />
-                    <Area type="monotone" dataKey="index" stroke="#059669" strokeWidth={2.5} fillOpacity={1} fill="url(#ag)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="mt-3 text-center text-[10px] text-zinc-600">Source: India WPI Data 2011–2017 · Kaggle</p>
-            </div>
-          )}
+          <div className="mt-8 text-center border-t border-[#1a2d1a] pt-4">
+            <p className="text-[10px] text-zinc-600">{t.source}</p>
+          </div>
         </div>
       </main>
     </div>
