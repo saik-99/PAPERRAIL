@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { Noto_Sans, Noto_Sans_Devanagari } from 'next/font/google'
 import './globals.css'
-import { Navbar } from './components/Navbar'
+import { Sidebar } from './components/Sidebar'
+import { LanguageProvider } from './components/LanguageContext'
+import { GeminiAdvisor } from './components/GeminiAdvisor'
 
 const notoSans = Noto_Sans({
   subsets: ['latin'],
@@ -17,23 +19,21 @@ const notoDevanagari = Noto_Sans_Devanagari({
 
 export const metadata: Metadata = {
   title: 'KhetiWala - Smart Farming Advisory',
-  description: 'AI-powered agricultural advisory for Indian farmers — maximize income, minimize spoilage.',
+  description: 'AI-powered agricultural advisory for Indian farmers.',
   manifest: '/manifest.json',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${notoSans.variable} ${notoDevanagari.variable} flex min-h-screen flex-col bg-white font-sans text-zinc-900 antialiased dark:bg-black dark:text-zinc-50`}
-      >
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <footer className="border-t border-zinc-100 px-4 py-4 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400 sm:px-8 lg:px-20">
-          <div className="mx-auto max-w-6xl">
-            © {new Date().getFullYear()} KhetiWala. Built for Indian farmers.
+      <body className={`${notoSans.variable} ${notoDevanagari.variable} flex min-h-screen bg-[#050e05] font-sans text-zinc-100 antialiased`}>
+        <LanguageProvider>
+          <Sidebar />
+          <div className="ml-[168px] flex flex-1 flex-col min-h-screen">
+            {children}
           </div>
-        </footer>
+          <GeminiAdvisor />
+        </LanguageProvider>
       </body>
     </html>
   )

@@ -1,108 +1,216 @@
-import Link from "next/link";
-import { SpoilageRiskMeter } from "./components/SpoilageRiskMeter";
-import { NetProfitOptimizer } from "./components/NetProfitOptimizer";
-import { WeatherWidget } from "./components/WeatherWidget";
-import { predictPrice } from "@/lib/utils";
-import { MOCK_PRICE_HISTORY } from "@/lib/mockData";
+'use client'
+
+import { useState } from "react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, TrendingDown, Minus, Leaf } from "lucide-react";
+import { useLanguage } from "./components/LanguageContext";
+import { LiveClock } from "./components/LiveClock";
+import { TopBar } from "./components/TopBar";
+import { GeminiAdvisor } from "./components/GeminiAdvisor";
+
+interface ChartPoint { month: string; index: number; }
+
+const FALLBACK_DATA: ChartPoint[] = [
+  { month: 'Apr-11', index: 100 }, { month: 'Jul-11', index: 104 },
+  { month: 'Oct-11', index: 107 }, { month: 'Jan-12', index: 112 },
+  { month: 'Apr-12', index: 118 }, { month: 'Jul-12', index: 125 },
+];
+
+const CROP_WPI_MAP: Record<string, string> = {
+  wheat: 'WHEAT', rice: 'RICE', cotton: 'COTTON',
+  soyabean: 'OIL SEEDS', onion: 'ONION', tomato: 'TOMATO',
+};
+
+const CROPS = ['wheat', 'rice', 'cotton', 'onion', 'tomato', 'soyabean'];
+const STATES = ['maharashtra', 'punjab', 'up', 'mp', 'gujarat', 'rajasthan'];
 
 export default function Home() {
-  const tomatoHistory = MOCK_PRICE_HISTORY.tomato ?? [];
-  const tomatoToday =
-    tomatoHistory.length > 0 ? tomatoHistory[tomatoHistory.length - 1] : 24;
+  const { t } = useLanguage();
+  const [formData, setFormData] = useState({ state: '', city: '', landSize: '', crop: '' });
+  const [isPredicted, setIsPredicted] = useState(false);
+  const [chartData, setChartData] = useState<ChartPoint[]>(FALLBACK_DATA);
+  const [chartLabel, setChartLabel] = useState('Sample WPI Index');
+  const [isLoading, setIsLoading] = useState(false);
+  const [sellSignal, setSellSignal] = useState<'BUY' | 'HOLD' | 'SELL' | null>(null);
+
+  const handlePredict = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setIsPredicted(true);
+    setIsLoading(true);
+    try {
+      const cropQuery = CROP_WPI_MAP[formData.crop] || formData.crop.toUpperCase();
+      const res = await fetch(`/api/crop-prices?q=${encodeURIComponent(cropQuery)}`);
+      const json = await res.json();
+      if (json.commodities?.length > 0) {
+        const commodity = json.commodities[0];
+        setChartData(commodity.series);
+        setChartLabel(`${commodity.name}`);
+        const s = commodity.series;
+        if (s.length >= 3) {
+          const last = s[s.length - 1].index;
+          const prev = s[s.length - 3].index;
+          if (last > prev * 1.02) setSellSignal('BUY');
+          else if (last < prev * 0.98) setSellSignal('SELL');
+          else setSellSignal('HOLD');
+        }
+      } else {
+        setChartData(FALLBACK_DATA);
+        setChartLabel('WPI Index (general)');
+      }
+    } catch { setChartData(FALLBACK_DATA); }
+    finally { setIsLoading(false); }
+  };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-zinc-900 dark:bg-black dark:text-zinc-50">
-      <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-10 px-4 py-10 sm:px-8 lg:px-20">
-        <section className="space-y-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-400">
-            Khetiwala
-          </p>
-          <h1 className="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">
-            Farmer-first AI to{" "}
-            <span className="text-emerald-700 dark:text-emerald-400">
-              maximize income
-            </span>{" "}
-            and cut spoilage.
-          </h1>
-          <p className="max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Khetiwala combines mandi prices, weather, and simple explainable AI
-            to help Indian farmers decide{" "}
-            <span className="font-semibold">when to harvest</span>,{" "}
-            <span className="font-semibold">where to sell</span>, and{" "}
-            <span className="font-semibold">how to store</span> their produce
-            for the best net profit.
-          </p>
-        </section>
+    <div className="flex flex-col min-h-screen">
+      <TopBar meta={{ greeting: '', title: 'Dashboard' }} />
 
-        <section className="mt-4 flex flex-col gap-4 sm:flex-row">
-          <Link
-            href="/demo"
-            className="inline-flex h-11 items-center justify-center rounded-full bg-emerald-700 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
-          >
-            Start farmer demo
-          </Link>
-          <Link
-            href="/features"
-            className="inline-flex h-11 items-center justify-center rounded-full border border-zinc-200 px-6 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-50 dark:hover:bg-zinc-900"
-          >
-            View features &amp; flows
-          </Link>
-        </section>
+      <main className="flex-1 p-6">
+        <div className="mx-auto max-w-5xl space-y-6">
 
-        <section className="mt-10 grid gap-4 border-t border-zinc-100 pt-6 text-sm text-zinc-600 dark:border-zinc-800 dark:text-zinc-400 sm:grid-cols-3">
-          <Link href="/net-profit" className="group block rounded-2xl border border-zinc-100 bg-white/80 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/70">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
-              Net-profit aware
-            </p>
-            <p className="mt-1">
-              Compares mandi price with transport cost so farmers see{" "}
-              <span className="font-semibold">true earnings per kg</span>.
-            </p>
-            <p className="mt-3 text-xs font-semibold text-emerald-700 group-hover:underline">
-              Open net-profit demo →
-            </p>
-          </Link>
-          <Link href="/spoilage" className="group block rounded-2xl border border-zinc-100 bg-white/80 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/70">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
-              Spoilage risk meter
-            </p>
-            <p className="mt-1">
-              Simple 🟢 / 🟡 / 🔴 indicator with{" "}
-              <span className="font-semibold">ranked storage actions</span> to
-              reduce losses.
-            </p>
-            <p className="mt-3 text-xs font-semibold text-emerald-700 group-hover:underline">
-              Explore spoilage scenarios →
-            </p>
-          </Link>
-          <Link href="/voice" className="group block rounded-2xl border border-zinc-100 bg-white/80 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/70">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
-              AI farmer profile
-            </p>
-            <p className="mt-1">
-              Answer a few questions about land size, state and crops so KhetiWala
-              can personalise advice for your farm.
-            </p>
-            <p className="mt-3 text-xs font-semibold text-emerald-700 group-hover:underline">
-              Open AI profile setup →
-            </p>
-          </Link>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-[2fr,1fr]">
-          <NetProfitOptimizer cropPricePerQuintal={tomatoToday} />
-          <div className="space-y-4">
-            <SpoilageRiskMeter
-              level="Medium"
-              message="Humidity and storage days suggest acting within 2–3 days."
-            />
-            <WeatherWidget
-              tempC={28}
-              humidity={72}
-              description="Partly cloudy over Nagpur"
-            />
+          {/* Live clock + Season */}
+          <div className="rounded-xl border border-[#1a2d1a] bg-[#0a160a] px-4 py-3">
+            <LiveClock />
           </div>
-        </section>
+
+          {/* Farm Profile Form */}
+          <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
+            <div className="mb-4 flex items-center gap-2">
+              <Leaf className="h-5 w-5 text-emerald-500" />
+              <h2 className="font-bold text-white">Your Farm Profile</h2>
+            </div>
+            <form onSubmit={handlePredict} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">State</label>
+                <select
+                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  value={formData.state}
+                  onChange={e => setFormData(p => ({ ...p, state: e.target.value }))}
+                >
+                  <option value="">Select State</option>
+                  {STATES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">City / Village</label>
+                <input
+                  placeholder="e.g. Nagpur"
+                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  value={formData.city}
+                  onChange={e => setFormData(p => ({ ...p, city: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">Land Size (acres)</label>
+                <input
+                  type="number" placeholder="e.g. 5"
+                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  value={formData.landSize}
+                  onChange={e => setFormData(p => ({ ...p, landSize: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[10px] uppercase tracking-wider text-zinc-500">Main Crop</label>
+                <select
+                  className="h-10 w-full rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-3 text-sm text-zinc-200 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  value={formData.crop}
+                  onChange={e => setFormData(p => ({ ...p, crop: e.target.value }))}
+                >
+                  <option value="">Select Crop</option>
+                  {CROPS.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="sm:col-span-2 lg:col-span-4 h-10 rounded-xl bg-emerald-700 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors"
+              >
+                Analyze AI Insights →
+              </button>
+            </form>
+          </div>
+
+          {/* Price Chart + Market data */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* WPI Chart */}
+            <div className={`rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5 transition-all duration-500 ${!isPredicted ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
+              <div className="mb-4 flex items-start justify-between">
+                <div>
+                  <h2 className="flex items-center gap-2 text-sm font-bold text-white">
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    {chartLabel}
+                  </h2>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">WPI Price Index · India 2011–2017</p>
+                </div>
+                {sellSignal && (
+                  <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold ${sellSignal === 'BUY' ? 'bg-emerald-900/50 text-emerald-400' :
+                    sellSignal === 'SELL' ? 'bg-red-900/50 text-red-400' :
+                      'bg-amber-900/50 text-amber-400'
+                    }`}>
+                    {sellSignal === 'BUY' ? <TrendingUp className="h-3 w-3" /> : sellSignal === 'SELL' ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+                    {sellSignal}
+                  </span>
+                )}
+              </div>
+              <div className="h-52 min-h-[200px]">
+                {isLoading ? (
+                  <div className="flex h-full items-center justify-center">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#059669" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1a2d1a" />
+                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#6b7280' }} dy={6} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#6b7280' }} />
+                      <Tooltip formatter={(v: number | undefined) => [v !== undefined ? `${v}` : '', 'WPI Index']}
+                        contentStyle={{ background: '#0d1a0d', border: '1px solid #1a2d1a', borderRadius: '8px', fontSize: '11px' }}
+                        labelStyle={{ color: '#a3a3a3' }}
+                      />
+                      <Area type="monotone" dataKey="index" stroke="#059669" strokeWidth={2} fillOpacity={1} fill="url(#emeraldGrad)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            {/* Gov Scheme Quick Links */}
+            <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5">
+              <div className="mb-4">
+                <h2 className="text-sm font-bold text-white">🏛️ Quick Links — Government Schemes</h2>
+                <p className="text-[11px] text-zinc-500 mt-0.5">Based on your land: {formData.landSize || '?'} acres · {formData.state || 'your state'}</p>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { title: 'PM-Kisan Samman Nidhi', desc: '₹6,000/year income support', link: 'https://pmkisan.gov.in/' },
+                  { title: 'PM Fasal Bima Yojana', desc: 'Crop insurance from 1.5%', link: 'https://pmfby.gov.in/' },
+                  { title: 'Kisan Credit Card', desc: 'Loan at 4% for farmers', link: 'https://www.nabard.org/' },
+                ].map(s => (
+                  <a key={s.title} href={s.link} target="_blank" rel="noreferrer"
+                    className="flex items-center justify-between rounded-xl border border-[#1a2d1a] bg-[#0d1a0d] px-4 py-3 hover:border-emerald-700 transition-colors">
+                    <div>
+                      <p className="text-xs font-semibold text-white">{s.title}</p>
+                      <p className="text-[11px] text-zinc-500">{s.desc}</p>
+                    </div>
+                    <span className="text-xs text-emerald-400 font-medium">Apply →</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Gemini Advisor context */}
+          <GeminiAdvisor context={{
+            state: formData.state, city: formData.city,
+            landSize: formData.landSize, crop: formData.crop,
+            wpiIndex: chartData.length > 0 ? `${chartData[chartData.length - 1].index} (${chartLabel})` : 'not fetched',
+          }} />
+        </div>
       </main>
     </div>
   );
