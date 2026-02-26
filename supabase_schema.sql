@@ -70,7 +70,7 @@ insert into public.crops (name_en, name_hi, name_mr, category) values
 -- RLS
 alter table public.crops enable row level security;
 create policy "Crops are viewable by everyone" on crops for select using (true);
-create policy "Only admins can insert crops" on crops for insert using (
+create policy "Only admins can insert crops" on crops for insert with check (
   exists (select 1 from public.profiles where id = auth.uid() and role = 'Admin')
 );
 
