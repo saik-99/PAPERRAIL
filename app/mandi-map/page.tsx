@@ -4,11 +4,12 @@ import { useState, useMemo } from "react";
 import dynamic from 'next/dynamic';
 import { TopBar } from '../components/TopBar';
 import { Search, MapPin, Navigation, TrendingUp, AlertCircle, RefreshCw } from "lucide-react";
+import { useLanguage } from '../components/LanguageContext';
 
 // Dynamically import Map to prevent SSR Window errors
 const MandiMap = dynamic(() => import('../components/MandiMap'), {
     ssr: false,
-    loading: () => <div className="h-full w-full bg-[#0d1a0d] flex flex-col items-center justify-center animate-pulse rounded-2xl border border-[#1a2d1a]"><div className="w-8 h-8 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin mb-2" /><span className="text-zinc-500 text-sm">Loading Maps...</span></div>
+    loading: () => <div className="h-full w-full bg-zinc-50 flex flex-col items-center justify-center animate-pulse rounded-2xl border border-zinc-200"><div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mb-2" /><span className="text-zinc-500 text-sm">Loading Maps...</span></div>
 });
 
 const MANDI_TIPS = [
@@ -29,6 +30,7 @@ interface MandiLocation {
 }
 
 export default function MandiMapPage() {
+    const { t } = useLanguage();
     const [pinCode, setPinCode] = useState('');
     const [crop, setCrop] = useState('Wheat');
     const [loading, setLoading] = useState(false);
@@ -138,10 +140,10 @@ export default function MandiMapPage() {
     }, [mandis]);
 
     return (
-        <div className="flex flex-col min-h-screen relative bg-[#050a05]">
-            {/* Background Image with Dark Overlay */}
+        <div className="flex flex-col min-h-screen relative bg-[#f4f7f4]">
+            {/* Background Image with Light Overlay */}
             <div
-                className="fixed inset-0 z-0 opacity-20 pointer-events-none"
+                className="fixed inset-0 z-0 opacity-10 pointer-events-none"
                 style={{
                     backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2689&auto=format&fit=crop")',
                     backgroundSize: 'cover',
@@ -149,32 +151,33 @@ export default function MandiMapPage() {
                     backgroundRepeat: 'no-repeat',
                 }}
             />
-            <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#050a05]/80 via-[#050a05]/95 to-[#050a05] pointer-events-none" />
+            <div className="fixed inset-0 z-0 bg-white/90 pointer-events-none" />
 
             <div className="relative z-10 flex flex-col min-h-screen">
-                <TopBar meta={{ greeting: 'Market Operations', title: 'Smart Mandi Finder' }} />
+                <TopBar meta={{ greeting: t('market_operations'), title: t('smart_mandi_finder') }} />
 
                 <main className="flex-1 p-6">
                     <div className="mx-auto max-w-6xl space-y-6">
 
                         {/* Unified Search Header */}
-                        <div className="rounded-2xl border border-emerald-900/40 bg-gradient-to-br from-[#0a160a] to-[#052e16] p-6 shadow-lg">
-                            <div className="mb-4 flex flex-col items-center text-center">
-                                <Navigation className="h-10 w-10 text-emerald-500 mb-2" />
-                                <h2 className="text-xl font-bold text-white">Find Nearby Markets</h2>
-                                <p className="text-sm text-emerald-100/70 max-w-xl">Enter your PIN code to instantly geolocate nearby Mandis and calculate your actual Net Profit after transportation costs.</p>
+                        <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -mr-20 -mt-20 opacity-50 pointer-events-none" />
+                            <div className="mb-4 flex flex-col items-center text-center relative z-10">
+                                <Navigation className="h-10 w-10 text-emerald-600 mb-2" />
+                                <h2 className="text-xl font-bold text-zinc-900">{t('find_nearby_markets')}</h2>
+                                <p className="text-sm text-zinc-600 max-w-xl">{t('mandi_finder_desc')}</p>
                             </div>
 
-                            <form onSubmit={handleSearch} className="max-w-3xl mx-auto grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+                            <form onSubmit={handleSearch} className="max-w-3xl mx-auto grid gap-3 sm:grid-cols-[1fr_1fr_auto] relative z-10">
                                 <div>
                                     <div className="relative">
                                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-emerald-600/70" />
                                         <input
                                             value={pinCode}
                                             onChange={e => setPinCode(e.target.value)}
-                                            placeholder="Enter 6-digit PIN Code..."
+                                            placeholder={t('enter_pin_code')}
                                             maxLength={6}
-                                            className="h-12 w-full pl-10 pr-4 rounded-xl border border-[#1a2d1a] bg-[#050a05] text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                                            className="h-12 w-full pl-10 pr-4 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-inner"
                                         />
                                     </div>
                                 </div>
@@ -182,7 +185,7 @@ export default function MandiMapPage() {
                                     <select
                                         value={crop}
                                         onChange={e => setCrop(e.target.value)}
-                                        className="h-12 w-full rounded-xl border border-[#1a2d1a] bg-[#050a05] px-4 text-zinc-200 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                                        className="h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 text-zinc-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-inner"
                                     >
                                         {['Wheat', 'Rice', 'Onion', 'Cotton', 'Tomato', 'Soyabean'].map(c => (
                                             <option key={c} value={c}>{c}</option>
@@ -194,12 +197,12 @@ export default function MandiMapPage() {
                                     disabled={loading}
                                     className="h-12 px-8 rounded-xl bg-emerald-700 font-bold tracking-wide text-white hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center min-w-[140px]"
                                 >
-                                    {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : 'Search Area'}
+                                    {loading ? <RefreshCw className="h-5 w-5 animate-spin" /> : t('search_area')}
                                 </button>
                             </form>
 
                             {errorMsg && (
-                                <div className="mt-4 flex items-center justify-center gap-2 text-red-400 bg-red-950/20 py-2 px-4 rounded-lg max-w-md mx-auto border border-red-900/30">
+                                <div className="mt-4 flex items-center justify-center gap-2 text-red-700 bg-red-50 py-2 px-4 rounded-lg max-w-md mx-auto border border-red-200">
                                     <AlertCircle className="w-4 h-4 shrink-0" />
                                     <p className="text-sm font-medium">{errorMsg}</p>
                                 </div>
@@ -207,8 +210,8 @@ export default function MandiMapPage() {
 
                             {detectedLocation && (
                                 <div className="mt-4 text-center">
-                                    <p className="text-emerald-400 font-semibold text-sm">
-                                        📍 Detected Region: <span className="text-white">{detectedLocation.city}, {detectedLocation.state}</span>
+                                    <p className="text-emerald-700 font-semibold text-sm">
+                                        📍 {t('detected_region')}: <span className="text-zinc-900">{detectedLocation.city}, {detectedLocation.state}</span>
                                     </p>
                                 </div>
                             )}
@@ -217,7 +220,7 @@ export default function MandiMapPage() {
                         <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
 
                             {/* Interactive Map Column */}
-                            <div className="h-[500px] lg:h-auto rounded-2xl w-full border border-[#1a2d1a] bg-[#0a160a] p-2 relative shadow-lg">
+                            <div className="h-[500px] lg:h-auto rounded-2xl w-full border border-zinc-200 bg-zinc-50 p-2 relative shadow-sm">
                                 <MandiMap center={mapCenter} mandis={mandis} />
                             </div>
 
@@ -225,38 +228,38 @@ export default function MandiMapPage() {
                             <div className="space-y-6 flex flex-col">
 
                                 {/* Mandi Profit Optimizer */}
-                                <div className="rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5 flex-1 flex flex-col max-h-[600px] overflow-hidden">
+                                <div className="rounded-2xl border border-emerald-100 bg-white p-5 flex-1 flex flex-col max-h-[600px] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                     <div className="mb-4">
-                                        <h2 className="font-bold text-white flex items-center gap-2">
-                                            <TrendingUp className="h-5 w-5 text-emerald-500" />
-                                            Profit Optimizer
+                                        <h2 className="font-bold text-zinc-900 flex items-center gap-2">
+                                            <TrendingUp className="h-5 w-5 text-emerald-600" />
+                                            {t('profit_optimizer')}
                                         </h2>
                                         <p className="text-xs text-zinc-500 mt-1">
-                                            Ranked by <span className="font-semibold text-zinc-300">Net Return</span> (Price − Transport).
+                                            {t('ranked_by')} <span className="font-bold text-emerald-700">{t('net_return')}</span> {t('price_minus_transport')}.
                                         </p>
                                     </div>
 
                                     <div className="flex-1 overflow-y-auto pr-1 space-y-3 custom-scrollbar list-container">
                                         {mandis.length === 0 ? (
-                                            <div className="h-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-[#1a2d1a] rounded-xl">
-                                                <Search className="w-10 h-10 text-zinc-700 mb-2" />
-                                                <p className="text-zinc-500 text-sm">Enter your PIN code above to find the optimal mandis for your crop.</p>
+                                            <div className="h-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-zinc-200 bg-zinc-50 rounded-xl">
+                                                <Search className="w-10 h-10 text-zinc-300 mb-2" />
+                                                <p className="text-zinc-500 text-sm">{t('enter_pin_prompt')}</p>
                                             </div>
                                         ) : (
                                             sortedMandis.map((m, i) => {
                                                 const net = m.offered - m.transport;
                                                 return (
-                                                    <div key={m.id} className={`flex items-center gap-3 rounded-xl border px-3 py-3 transition-colors ${i === 0 ? 'border-emerald-800 bg-emerald-950/20' : 'border-[#1a2d1a] bg-[#0d1a0d]'}`}>
+                                                    <div key={m.id} className={`flex items-center gap-3 rounded-xl border px-3 py-3 transition-colors ${i === 0 ? 'border-emerald-200 bg-emerald-50 shadow-sm' : 'border-zinc-200 bg-white hover:border-emerald-200 hover:bg-zinc-50/50'}`}>
                                                         <span className="text-lg w-6 text-center">{['🥇', '🥈', '🥉', '🔵'][i] || '🔵'}</span>
                                                         <div className="flex-1 min-w-0">
-                                                            <p className="font-semibold text-white text-sm truncate">{m.name}</p>
-                                                            <p className="text-[10px] text-zinc-500 mt-0.5">
+                                                            <p className="font-bold text-zinc-900 text-sm truncate">{m.name}</p>
+                                                            <p className="text-[10px] text-zinc-500 mt-0.5 font-medium">
                                                                 📍 {m.distance}km · 🚚 ₹{m.transport}/q
                                                             </p>
                                                         </div>
                                                         <div className="text-right shrink-0">
-                                                            <p className="text-sm font-bold text-emerald-400">₹{m.offered}</p>
-                                                            <p className="text-[10px] text-zinc-400 font-medium">Net: ₹{net}</p>
+                                                            <p className="text-sm font-black text-emerald-700">₹{m.offered}</p>
+                                                            <p className="text-[10px] text-zinc-600 font-bold">{t('net')}: ₹{net}</p>
                                                         </div>
                                                     </div>
                                                 );
@@ -266,12 +269,12 @@ export default function MandiMapPage() {
                                 </div>
 
                                 {/* Mandi Tips */}
-                                <div className="rounded-2xl border border-[#1a2d1a] bg-[#050a05] p-5 shrink-0">
-                                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><span>💡</span> Expert Tips</h3>
+                                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 shrink-0 shadow-sm">
+                                    <h3 className="text-sm font-bold text-zinc-900 mb-3 flex items-center gap-2"><span>💡</span> {t('expert_tips')}</h3>
                                     <ul className="space-y-2">
                                         {MANDI_TIPS.map((tip, i) => (
-                                            <li key={i} className="flex items-start gap-2 text-xs text-zinc-400">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1 shrink-0" />
+                                            <li key={i} className="flex items-start gap-2 text-xs text-zinc-700 font-medium">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
                                                 <span className="leading-snug">{tip}</span>
                                             </li>
                                         ))}

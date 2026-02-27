@@ -2,31 +2,35 @@
 
 import { TopBar } from '../components/TopBar';
 import { ExternalLink } from 'lucide-react';
+import { useLanguage } from '../components/LanguageContext';
 
-const SCHEMES = [
-    { icon: '🌾', category: 'Insurance', title: 'PM Fasal Bima Yojana', desc: 'Crop insurance against natural calamities. Premium as low as 1.5% of sum insured.', link: 'https://pmfby.gov.in/' },
-    { icon: '💰', category: 'Income', title: 'PM-KISAN Samman Nidhi', desc: '₹6,000/year direct income support in 3 installments to all eligible farmers.', link: 'https://pmkisan.gov.in/' },
-    { icon: '🏦', category: 'Credit', title: 'Kisan Credit Card (KCC)', desc: 'Low-interest crop loan up to ₹3 lakh at 4% p.a. for production credit needs.', link: 'https://www.nabard.org/' },
-    { icon: '📊', category: 'Market', title: 'eNAM Digital Market', desc: 'Online mandi platform. 1000+ mandis. Direct access to buyers across India.', link: 'https://www.enam.gov.in/' },
-    { icon: '💧', category: 'Irrigation', title: 'PM Krishi Sinchai Yojana', desc: 'Micro-irrigation subsidy. 55% for small/marginal farmers, 45% for others.', link: 'https://pmksy.gov.in/' },
-    { icon: '🌱', category: 'Soil', title: 'Soil Health Card Scheme', desc: 'Free soil testing every 2 years. Nutrient-specific fertilizer recommendations.', link: 'https://soilhealth.dac.gov.in/' },
+// Refactored to map keys to descriptions for i18n
+const SCHEME_KEYS = [
+    { icon: '🌾', catKey: 'insurance', titleKey: 'pmfby_title', descKey: 'pmfby_desc', link: 'https://pmfby.gov.in/' },
+    { icon: '💰', catKey: 'income', titleKey: 'pmkisan_title', descKey: 'pmkisan_desc', link: 'https://pmkisan.gov.in/' },
+    { icon: '🏦', catKey: 'credit', titleKey: 'kcc_title', descKey: 'kcc_desc', link: 'https://www.nabard.org/' },
+    { icon: '📊', catKey: 'market', titleKey: 'enam_title', descKey: 'enam_desc', link: 'https://www.enam.gov.in/' },
+    { icon: '💧', catKey: 'irrigation', titleKey: 'pmksy_title', descKey: 'pmksy_desc', link: 'https://pmksy.gov.in/' },
+    { icon: '🌱', catKey: 'soil', titleKey: 'shc_title', descKey: 'shc_desc', link: 'https://soilhealth.dac.gov.in/' },
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-    Insurance: 'text-sky-400 bg-sky-900/20',
-    Income: 'text-amber-400 bg-amber-900/20',
-    Credit: 'text-purple-400 bg-purple-900/20',
-    Market: 'text-emerald-400 bg-emerald-900/20',
-    Irrigation: 'text-cyan-400 bg-cyan-900/20',
-    Soil: 'text-lime-400 bg-lime-900/20',
+    Insurance: 'text-sky-700 bg-sky-50',
+    Income: 'text-amber-700 bg-amber-50',
+    Credit: 'text-purple-700 bg-purple-50',
+    Market: 'text-emerald-700 bg-emerald-50',
+    Irrigation: 'text-cyan-700 bg-cyan-50',
+    Soil: 'text-lime-700 bg-lime-50',
 };
 
 export default function PMSchemesPage() {
+    const { t } = useLanguage();
+
     return (
-        <div className="flex flex-col min-h-screen relative bg-[#050a05]">
-            {/* Background Image with Dark Overlay */}
+        <div className="flex flex-col min-h-screen relative bg-[#f4f7f4]">
+            {/* Background Image with Light Overlay */}
             <div
-                className="fixed inset-0 z-0 opacity-20 pointer-events-none"
+                className="fixed inset-0 z-0 opacity-10 pointer-events-none"
                 style={{
                     backgroundImage: 'url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2689&auto=format&fit=crop")',
                     backgroundSize: 'cover',
@@ -34,43 +38,43 @@ export default function PMSchemesPage() {
                     backgroundRepeat: 'no-repeat',
                 }}
             />
-            <div className="fixed inset-0 z-0 bg-gradient-to-b from-[#050a05]/80 via-[#050a05]/95 to-[#050a05] pointer-events-none" />
+            <div className="fixed inset-0 z-0 bg-white/90 pointer-events-none" />
 
             <div className="relative z-10 flex flex-col min-h-screen">
-                <TopBar meta={{ greeting: 'Good afternoon', title: 'Government Scheme Matcher' }} />
+                <TopBar meta={{ greeting: 'Good afternoon', title: t('gov_scheme_matcher') }} />
                 <main className="flex-1 p-6">
                     <div className="mx-auto max-w-5xl">
-                        <div className="mb-6 rounded-xl border border-[#1a2d1a] bg-[#0a160a] p-4">
+                        <div className="mb-6 rounded-xl border border-emerald-100 bg-white shadow-sm p-4">
                             <div className="flex items-center gap-2">
                                 <span className="text-lg">🏛️</span>
                                 <div>
-                                    <h2 className="font-bold text-white">Government Scheme Matcher — All States</h2>
-                                    <p className="text-xs text-zinc-400">{SCHEMES.length} schemes matched to your crop and region</p>
+                                    <h2 className="font-bold text-zinc-900">{t('all_states')}</h2>
+                                    <p className="text-xs text-zinc-500">{SCHEME_KEYS.length} {t('schemes_matched')}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {SCHEMES.map((scheme) => (
+                            {SCHEME_KEYS.map((scheme) => (
                                 <div
-                                    key={scheme.title}
-                                    className="flex flex-col rounded-2xl border border-[#1a2d1a] bg-[#0a160a] p-5 hover:border-emerald-800 transition-colors"
+                                    key={scheme.titleKey}
+                                    className="flex flex-col rounded-2xl border border-emerald-100 bg-white p-5 hover:border-emerald-300 hover:shadow-md transition-all"
                                 >
                                     <div className="mb-3 flex items-start justify-between">
                                         <span className="text-2xl">{scheme.icon}</span>
-                                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${CATEGORY_COLORS[scheme.category]}`}>
-                                            {scheme.category}
+                                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${CATEGORY_COLORS[scheme.catKey] || 'text-emerald-700 bg-emerald-50'}`}>
+                                            {t(scheme.catKey)}
                                         </span>
                                     </div>
-                                    <h3 className="mb-2 text-sm font-bold text-white">{scheme.title}</h3>
-                                    <p className="mb-4 flex-1 text-xs leading-relaxed text-zinc-400">{scheme.desc}</p>
+                                    <h3 className="mb-2 text-sm font-bold text-zinc-900">{t(scheme.titleKey)}</h3>
+                                    <p className="mb-4 flex-1 text-xs leading-relaxed text-zinc-600">{t(scheme.descKey)}</p>
                                     <a
                                         href={scheme.link}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                                        className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
                                     >
-                                        Apply Now <ExternalLink className="h-3 w-3" />
+                                        {t('apply_now')} <ExternalLink className="h-3 w-3" />
                                     </a>
                                 </div>
                             ))}
