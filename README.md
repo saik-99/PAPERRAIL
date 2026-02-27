@@ -1,6 +1,9 @@
-npThis is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+npThis is a [Next<img width="1905" height="902" alt="Screenshot 2026-02-27 080004" src="https://github.com/user-attachments/assets/5c8310b0-c8d3-4e20-9a52-b6cb560688eb" />
+.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+##<img width="1414" height="792" alt="Screenshot 2026-02-27 094807" src="https://github.com/user-attachments/assets/8945185c-cf49-4d2c-bdc8-d2326e37acd2" />
+ Getting Started
 
 First, run the development server:
 
